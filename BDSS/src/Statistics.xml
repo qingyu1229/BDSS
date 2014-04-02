@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE sqlMap  
+PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"  
+"http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap> 
+	<select id="statistics_intention" parameterClass="java.util.HashMap" resultClass="com.baidu.vo.S_intention">
+		select count(salesrecord.id) as count,intention,date from salesrecord inner join s_user 
+			on salesrecord.salerid=s_user.id
+		<dynamic prepend="where">
+			<isNotEmpty property="date1"><!-- 录入时间 -->
+				<isNotEmpty prepend="and" property="date2">
+					salesrecord.date between #date1#
+						and #date2#
+	         	</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty property="permission">
+				<isEqual prepend="and" property="permission" compareValue="0"><!-- 销售级别 -->
+					salerid=#u_id# 
+				</isEqual>
+				<isEqual prepend="and" property="permission" compareValue="1"><!-- 经理级别 -->
+					company=(select company from s_user where id=#u_id#)
+					and dept=(select dept from s_user where id=#u_id#)
+					and _group=(select _group from s_user where id=#u_id#)
+				</isEqual>
+				<isEqual prepend="and" property="permission" compareValue="2"><!-- 高经级别 -->
+					company=(select company from s_user where id=#u_id#)
+					and dept=(select dept from s_user where id=#u_id#)
+				</isEqual>
+				<isEqual prepend="and" property="permission" compareValue="3"><!-- 总监级别 -->
+					company=(select company from s_user where id=#u_id#)
+				</isEqual>
+			</isNotEmpty>
+			group by date,intention
+		</dynamic> 	
+	</select>
+	
+	<select id="statistics_acc" parameterClass="java.util.HashMap" resultClass="int">
+		select count(salesrecord.salerid) from salesrecord inner join s_user 
+			on salesrecord.salerid=s_user.id
+		<dynamic prepend="where">
+			<isNotEmpty property="date1"><!-- 录入时间 -->
+				<isNotEmpty prepend="and" property="date2">
+					salesrecord.date between #date1#
+						and #date2#
+	         	</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty property="permission">
+				<isEqual prepend="and" property="permission" compareValue="0"><!-- 销售级别 -->
+					salerid=#u_id# 
+				</isEqual>
+				<isEqual prepend="and" property="permission" compareValue="1"><!-- 经理级别 -->
+					company=(select company from s_user where id=#u_id#)
+					and dept=(select dept from s_user where id=#u_id#)
+					and _group=(select _group from s_user where id=#u_id#)
+				</isEqual>
+				<isEqual prepend="and" property="permission" compareValue="2"><!-- 高经级别 -->
+					company=(select company from s_user where id=#u_id#)
+					and dept=(select dept from s_user where id=#u_id#)
+				</isEqual>
+				<isEqual prepend="and" property="permission" compareValue="3"><!-- 总监级别 -->
+					company=(select company from s_user where id=#u_id#)
+				</isEqual>
+			</isNotEmpty>
+			and accomplished=1
+		</dynamic> 
+	
+	</select>
+</sqlMap>
+ 

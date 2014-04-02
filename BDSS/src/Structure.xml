@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE sqlMap  
+PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"  
+"http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap> 
+ 	<typeAlias alias="Structure" type="com.baidu.vo.Structure" />  
+ 	
+	<select id="selectDept" parameterClass="java.util.HashMap" resultClass="string">
+		select dept from structure 
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="company">
+				<isNotEqual property="company" compareValue="0">
+					 company=#company#	group by dept	 
+				</isNotEqual>
+			</isNotEmpty>
+		</dynamic>
+	</select>
+		
+	<select id="selectGroup" parameterClass="java.util.HashMap" resultClass="string">
+		select _group from structure
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="company">
+				<isNotEqual property="company" compareValue="0">
+					 	company=#company#	
+				</isNotEqual>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="dept">
+				<isNotEqual property="dept" compareValue="0">
+					 	dept=#dept#	 
+				</isNotEqual>
+			</isNotEmpty>
+		</dynamic>
+		  group by _group
+	</select>
+	
+	<select id="loadsaler" parameterClass="java.util.HashMap" resultClass="com.baidu.vo.User2">
+		select id,realname from s_user 
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="u_id">
+				company=(select company from s_user where id=#u_id#)
+					<isNotEmpty  property="dept">
+						<isNotEqual prepend="and" property="dept" compareValue="0">
+							dept=#dept#
+						</isNotEqual>
+					</isNotEmpty>
+					<isEmpty prepend="and" property="dept">
+						dept=(select dept from s_user where id=#u_id#)
+					</isEmpty> 
+					<isNotEmpty  property="group">
+						<isNotEqual prepend="and" property="group" compareValue="0">
+							_group=#group#
+						</isNotEqual>
+					</isNotEmpty>
+					<isEmpty prepend="and" property="group">
+						_group=(select _group from s_user where id=#u_id#)
+					</isEmpty> 
+			</isNotEmpty>
+			and permission=0
+		</dynamic>
+	</select>
+	
+	<select id="loadgroup" parameterClass="java.util.HashMap" resultClass="string">
+		select _group from structure
+			<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="u_id">
+				company=(select company from s_user where id=#u_id#)
+					<isNotEmpty  property="dept">
+						<isNotEqual prepend="and" property="dept" compareValue="0">
+							dept=#dept#
+						</isNotEqual>
+					</isNotEmpty>
+					<isEmpty prepend="and" property="dept">
+						dept=(select dept from s_user where id=#u_id#)
+					</isEmpty> 
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	<select id="loaddept" parameterClass="java.util.HashMap" resultClass="string">
+		select dept from structure
+			<dynamic prepend="where">
+				<isNotEmpty prepend="and" property="u_id">
+					company=(select company from s_user where id=#u_id#)
+				</isNotEmpty>
+			</dynamic>
+		group by dept
+	</select>
+	
+</sqlMap>
+ 

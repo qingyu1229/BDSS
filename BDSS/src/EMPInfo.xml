@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE sqlMap  
+PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"  
+"http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap> 
+	<typeAlias alias="User3" type="com.baidu.vo.User3" />  
+	<select id="selectNoACtivation" parameterClass="java.util.HashMap" resultClass="User3">
+		select id,username,realname,company,dept,_group as mygroup from s_user
+		 where company=(select company from s_user where id=#u_id#) 
+		       and dept=(select dept from s_user where id=#u_id#)
+		       and _group=(select _group from s_user where id=#u_id#) 
+		       and activation =0 
+		  order by id limit #pagebegin# ,10     
+	</select>
+	<select id="selectNoACtivationCount" parameterClass="java.util.HashMap" resultClass="int">
+		select count(id) from s_user
+		 where company=(select company from s_user where id=#u_id#) 
+		       and dept=(select dept from s_user where id=#u_id#)
+		       and _group=(select _group from s_user where id=#u_id#) 
+		       and activation =0
+	</select>
+	
+	<select id="getEMPInfos" parameterClass="java.util.HashMap" resultClass="User3">
+		select id,username,realname,company,dept,onjob ,_group as mygroup 
+			 from s_user 
+		<dynamic prepend="where">
+			 <isNotEmpty prepend="and" property="permission">
+			 	<isEqual  property="permission" compareValue="1"><!-- 经理权限账户 -->
+				 company=(select company from s_user where id=#u_id#)
+				 and  dept=(select dept from s_user where id=#u_id#)	
+				 and	 _group=(select _group from s_user where id=#u_id#)	
+				<isNotEmpty  property="salerid"> 
+		  			<isNotEqual prepend="and" property="salerid" compareValue="0">
+						id=#salerid#	
+					</isNotEqual> 
+				</isNotEmpty>
+			</isEqual>
+			<isEqual  property="permission" compareValue="2"><!-- 高经权限账户 -->
+				  company=(select company from s_user where id=#u_id#)
+				and  dept=(select dept from s_user where id=#u_id#)
+		  	   <isNotEqual prepend="and" property="group" compareValue="0">
+					 _group=#group#	
+				<isNotEmpty prepend="and" property="salerid"> 
+					<isNotEqual property="salerid" compareValue="0">
+					 	id=#salerid#	
+					</isNotEqual>
+				</isNotEmpty>
+			</isNotEqual>
+			</isEqual>
+
+			<isEqual   property="permission" compareValue="3">	<!-- 总监账号 -->
+			 	company=(select company from s_user where id=#u_id#)
+				<isNotEqual prepend="and" property="dept" compareValue="0">
+					dept=#dept#
+						<isNotEmpty  property="group"> 
+		  			<isNotEqual prepend="and" property="group" compareValue="0">
+						 _group=#group#	
+						 <isNotEmpty  property="salerid"> 
+						 <isNotEqual prepend="and" property="salerid" compareValue="0">
+					        id=#salerid#	
+				        </isNotEqual>
+				      </isNotEmpty>
+					 </isNotEqual>   </isNotEmpty>
+					</isNotEqual>
+			</isEqual>
+			 </isNotEmpty>
+			 and permission=0
+		</dynamic>
+		         order by id limit #pagebegin# ,10
+	</select>
+	
+	<select id="getEMPInfosCount" parameterClass="java.util.HashMap" resultClass="int">
+		select count(id) 
+			 from s_user 
+		<dynamic prepend="where">
+			 <isNotEmpty prepend="and" property="permission">
+			 	<isEqual  property="permission" compareValue="1"><!-- 经理权限账户 -->
+				 company=(select company from s_user where id=#u_id#)
+				 and  dept=(select dept from s_user where id=#u_id#)	
+				 and	 _group=(select _group from s_user where id=#u_id#)	
+				<isNotEmpty  property="salerid"> 
+		  			<isNotEqual prepend="and" property="salerid" compareValue="0">
+						 id=#salerid#	
+					</isNotEqual> 
+				</isNotEmpty>
+			</isEqual>
+			<isEqual  property="permission" compareValue="2"><!-- 高经权限账户 -->
+				  company=(select company from s_user where id=#u_id#)
+				 and dept=(select dept from s_user where id=#u_id#)
+		  	   <isNotEqual prepend="and" property="group" compareValue="0">
+					 _group=#group#	
+				<isNotEmpty prepend="and" property="salerid"> 
+					<isNotEqual property="salerid" compareValue="0">
+					 	id=#salerid#	
+					</isNotEqual>
+				</isNotEmpty>
+			</isNotEqual>
+			</isEqual>
+			<isEqual  property="permission" compareValue="3">	<!-- 总监账号 -->
+			 	company=(select company from s_user where id=#u_id#)
+				<isNotEqual prepend="and" property="dept" compareValue="0">
+						dept=#dept#
+						<isNotEmpty  property="group"> 
+		  			<isNotEqual prepend="and" property="group" compareValue="0">
+						 _group=#group#	
+						 <isNotEmpty  property="salerid"> 
+						 <isNotEqual prepend="and" property="salerid" compareValue="0">
+					        id=#salerid#	
+				        </isNotEqual>
+				      </isNotEmpty>
+					 </isNotEqual></isNotEmpty>
+					</isNotEqual>
+			</isEqual>
+			 </isNotEmpty>
+			  and permission=0
+		</dynamic>
+	</select>
+	<!-- 激活用户 -->
+	<update id="activation" parameterClass="int">
+		update s_user set activation=1 where id=#u_id#
+	</update>
+	<!-- 离职 -->
+	<update id="fire" parameterClass="int">
+		update s_user set onjob=0 where id=#u_id#
+	</update>
+	<update id="transfer" parameterClass="java.util.HashMap">
+		update salesrecord set salerid=#s_id2# where salerid=#s_id#		
+	</update>
+	<select id="getRecordCount" parameterClass="int" resultClass="int">
+		select count(id) from salesrecord where salerid=#s_id#
+	</select>
+</sqlMap>
+ 
+ 
+ 
+ 
+ 
+ 

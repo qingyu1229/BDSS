@@ -1,0 +1,4 @@
+#Fri Aug 09 09:03:57 CST 2013
+eclipse.preferences.version=1
+validator.Checked=src/struts.xml,WebRoot/js/jquery-1.9.0.js,WebRoot/js/jquery-1.9.0.min.js
+validator.Unchecked=

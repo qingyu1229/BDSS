@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE sqlMap  
+PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"  
+"http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap> 
+	<insert id="addnote" parameterClass="java.util.HashMap" >
+			insert into 
+			note(salesrecordid,content,date)
+			values(#s_id#,#note#,#date#)
+		<selectKey resultClass="int" keyProperty="id">
+        	<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+     	</selectKey>
+	</insert>
+	<select id="getneednote" parameterClass="int" resultClass="int">
+		select count(*) from salesrecord where accomplished=0 and salerid=#u_id# and <![CDATA[ nextnotedate = UTC_DATE()]]>
+	</select>
+	
+	<select id="getnotes" parameterClass="int" resultClass="com.baidu.vo.Note">
+		select * from note where salesrecordid=#s_id#
+	</select>
+	<select id="selectNote" parameterClass="int" resultClass="com.baidu.vo.Note2">
+		select  companyname,address,phone,salesrecord.date as drdate,note.date as notedate,note.content as note,dept,_group as mygroup,realname
+		  from note inner join (salesrecord inner join s_user on salesrecord.salerid=s_user.id) 
+			on note.salesrecordid=salesrecord.id
+			   where note.id=#s_id#
+	</select>
+	
+	<select id="selectNotes" parameterClass="java.util.HashMap" resultClass="com.baidu.vo.Note2">
+		select  companyname,note.id as id,salesrecord.date as drdate,note.date as notedate,note.content as note,dept,_group as mygroup,realname
+		  from note inner join (salesrecord inner join s_user on salesrecord.salerid=s_user.id) 
+			on note.salesrecordid=salesrecord.id
+			<dynamic prepend="where">
+			<isNotEmpty property="date1"><!-- 跟进时间 -->
+				<isNotEmpty prepend="and" property="date2">
+					note.date between #date1#
+					and #date2#
+	         	</isNotEmpty>
+			</isNotEmpty>
+			<isEqual property="querytype" compareValue="0"> <!-- 公司名模糊查询 -->
+			     <isNotEmpty prepend="and" property="companyname">
+				      companyname like '%$companyname$%'
+	         	</isNotEmpty>
+	         	</isEqual>
+	         	<isEqual  property="querytype" compareValue="1"> <!-- 公司名精确查询 -->
+			     <isNotEmpty prepend="and" property="companyname">
+				      companyname = #companyname#
+	         	</isNotEmpty>
+	         	</isEqual>
+	         	<isEqual prepend="and" property="premission" compareValue="0"> <!--销售权限账户 -->
+				salerid=#u_id#			
+			</isEqual>
+			<isEqual prepend="and" property="premission" compareValue="1"><!-- 经理权限账户 -->
+				 company=(select company from s_user where id=#u_id#)
+				 and  dept=(select dept from s_user where id=#u_id#)	
+				 and	 _group=(select _group from s_user where id=#u_id#)	
+				<isNotEmpty  property="salerid"> 
+		  			<isNotEqual prepend="and" property="salerid" compareValue="0">
+						 salerid=#salerid#	
+					</isNotEqual> 
+				</isNotEmpty>
+			</isEqual>
+			<isEqual prepend="and" property="premission" compareValue="2"><!-- 高经权限账户 -->
+				  company=(select company from s_user where id=#u_id#)
+				  and dept=(select dept from s_user where id=#u_id#)
+		  	   <isNotEqual prepend="and" property="group" compareValue="0">
+					 _group=#group#	
+				<isNotEmpty prepend="and" property="salerid"> 
+					<isNotEqual property="salerid" compareValue="0">
+					 	salerid=#salerid#	
+					</isNotEqual>
+				</isNotEmpty>
+			</isNotEqual>
+			</isEqual>
+
+			<isEqual prepend="and"  property="premission" compareValue="3">	<!-- 总监账号 -->
+			 	company=(select company from s_user where id=#u_id#)
+				<isNotEqual prepend="and" property="dept" compareValue="0">
+						dept=#dept#
+		  			<isNotEqual prepend="and" property="group" compareValue="0">
+						 _group=#group#	
+						 <isNotEmpty  property="salerid"> 
+						 <isNotEqual prepend="and" property="salerid" compareValue="0">
+					        salerid=#salerid#	
+				        </isNotEqual>
+				      </isNotEmpty>
+					 </isNotEqual>
+					</isNotEqual>
+			</isEqual>
+		    <isNotEmpty prepend="and" property="accomplished">
+				accomplished=#accomplished# 
+			</isNotEmpty>
+			  order by note.date desc  limit #pagebegin# ,10
+		</dynamic>
+	</select>
+		<select id="selectNotesCount" parameterClass="java.util.HashMap" resultClass="int">
+		select  count(note.id)
+		  from note inner join (salesrecord inner join s_user on salesrecord.salerid=s_user.id) 
+			on note.salesrecordid=salesrecord.id
+			<dynamic prepend="where">
+			<isNotEmpty property="date1"><!-- 跟进时间 -->
+				<isNotEmpty prepend="and" property="date2">
+					note.date between #date1#
+					and #date2#
+	         	</isNotEmpty>
+			</isNotEmpty>
+			<isEqual property="querytype" compareValue="0"> <!-- 公司名模糊查询 -->
+			     <isNotEmpty prepend="and" property="companyname">
+				      companyname like '%$companyname$%'
+	         	</isNotEmpty>
+	         	</isEqual>
+	         	<isEqual  property="querytype" compareValue="1"> <!-- 公司名精确查询 -->
+			     <isNotEmpty prepend="and" property="companyname">
+				      companyname = #companyname#
+	         	</isNotEmpty>
+	         	</isEqual>
+	         	<isEqual prepend="and" property="premission" compareValue="0"> <!--销售权限账户 -->
+				salerid=#u_id#			
+			</isEqual>
+			<isEqual prepend="and" property="premission" compareValue="1"><!-- 经理权限账户 -->
+				 company=(select company from s_user where id=#u_id#)
+				 and  dept=(select dept from s_user where id=#u_id#)	
+				 and	 _group=(select _group from s_user where id=#u_id#)	
+				<isNotEmpty  property="salerid"> 
+		  			<isNotEqual prepend="and" property="salerid" compareValue="0">
+						 salerid=#salerid#	
+					</isNotEqual> 
+				</isNotEmpty>
+			</isEqual>
+			<isEqual prepend="and" property="premission" compareValue="2"><!-- 高经权限账户 -->
+				  company=(select company from s_user where id=#u_id#)
+				  and  dept=(select dept from s_user where id=#u_id#)
+		  	   <isNotEqual prepend="and" property="group" compareValue="0">
+					 _group=#group#	
+				<isNotEmpty prepend="and" property="salerid"> 
+					<isNotEqual property="salerid" compareValue="0">
+					 	salerid=#salerid#	
+					</isNotEqual>
+				</isNotEmpty>
+			</isNotEqual>
+			</isEqual>
+
+			<isEqual prepend="and"  property="premission" compareValue="3">	<!-- 总监账号 -->
+			 	company=(select company from s_user where id=#u_id#)
+				<isNotEqual prepend="and" property="dept" compareValue="0">
+						dept=#dept#
+		  			<isNotEqual prepend="and" property="group" compareValue="0">
+						 _group=#group#	
+						 <isNotEmpty  property="salerid"> 
+						 <isNotEqual prepend="and" property="salerid" compareValue="0">
+					        salerid=#salerid#	
+				        </isNotEqual>
+				      </isNotEmpty>
+					 </isNotEqual>
+					</isNotEqual>
+			</isEqual>
+		    <isNotEmpty prepend="and" property="accomplished">
+				accomplished=#accomplished# 
+			</isNotEmpty>
+		</dynamic>
+	</select>
+</sqlMap>
+ 

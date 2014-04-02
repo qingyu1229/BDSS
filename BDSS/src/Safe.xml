@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE sqlMap  
+PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"  
+"http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap> 
+ 	<delete id="deleteSafeQuestion" parameterClass="java.util.HashMap" >
+ 		delete  from user_safe where user_id=#u_id#
+ 	</delete>
+ 	<insert id="addSafe" parameterClass="java.util.HashMap">
+ 		insert into user_safe(question_id,answer,user_id) values(#wt#,#da#,#u_id#);
+ 	</insert>
+ 	
+ 	<select id="getquestions" parameterClass="int" resultClass="string">
+ 		select question_id from user_safe 
+ 			<dynamic prepend="where">
+ 					user_id=#u_id#
+ 			</dynamic>
+ 	</select>
+ 	
+ 	<select id="safe_getid" parameterClass="java.util.HashMap" resultClass="int">
+ 			select id from s_user
+ 			   <dynamic prepend="where">
+ 				<isNotEmpty prepend="and" property="company">
+ 					company=#company#
+ 				</isNotEmpty>
+ 				<isNotEmpty prepend="and" property="dept">
+ 					dept=#dept#
+ 				</isNotEmpty>
+ 				<isNotEmpty prepend="and" property="group">
+ 					_group=#group#
+ 				</isNotEmpty>
+ 				<isNotEmpty prepend="and" property="username">
+ 					username=#username#
+ 				</isNotEmpty>
+ 			</dynamic>
+ 	</select>
+ 	<select id="checkanswer" parameterClass="java.util.HashMap" resultClass="int">
+ 		select count(id) from user_safe where user_id=#u_id# and question_id=#wt# and answer=#da#
+ 	</select>
+</sqlMap>
+ 

@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE sqlMap  
+PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"  
+"http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap>
+	<!-- 通过typeAlias使得我们在下面使用Student实体类的时候不需要写包名 -->
+	<typeAlias alias="Note" type="com.baidu.vo.Note" />
+	<typeAlias alias="Record" type="com.baidu.vo.Record" />
+	<typeAlias alias="SalesRecord" type="com.baidu.vo.SalesRecord" />
+	<typeAlias alias="User" type="com.baidu.vo.User" />
+	<select id="select1" parameterClass="java.util.HashMap" resultClass="com.baidu.vo.SalesRecord">
+		select * from salesrecord 
+		where intention=(select intention from salesrecord where id=#u_id#)
+	</select>
+			
+	<select id="getNoNoteInfo" parameterClass="java.util.HashMap" resultClass="com.baidu.vo.SalesRecord2">
+		select * from salesrecord inner join s_user on
+		salesrecord.salerid=s_user.id where accomplished=0 and salesrecord.salerid=#u_id# 
+		and <![CDATA[ nextnotedate = UTC_DATE()]]>
+		order by nextnotedate desc
+		limit #pagebegin#,#pagecount#
+	</select>	
+	<select id="getNoNoteInfoCount" parameterClass="java.util.HashMap" resultClass="int">
+		select count(*) from salesrecord inner join s_user on
+		salesrecord.salerid=s_user.id where accomplished=0
+		and salesrecord.salerid=#u_id# and <![CDATA[ nextnotedate = UTC_DATE()]]>
+	</select>
+			
+	<!-- 添加客户信息 -->
+	<insert id="addRecord" parameterClass="java.util.HashMap">
+		call insertsalesrecord(#companyname#,#linkman#,#phone#,#intention#,#dataSource#,
+		#industry#,#website#,#fax#,#comment#,#address#,#salerId#,#accomplished#,#town#,#nextnotedate#);
+	</insert>
+	
+	<select id="selectSalesRecord" resultClass="com.baidu.vo.SalesRecord" parameterClass="int">
+		select * from salesrecord where id=#s_id#
+	</select>
+	
+	<select id="getSalesRecordsCount" parameterClass="java.util.HashMap"
+		resultClass="int">
+		select Count(salesrecord.id) from salesrecord inner join s_user on
+		salesrecord.salerid=s_user.id
+		<dynamic prepend="where">
+			<isNotEmpty property="date1"><!-- 录入时间 -->
+				<isNotEmpty prepend="and" property="date2">
+					salesrecord.date between #date1#
+					and #date2#
+	         	</isNotEmpty>
+			</isNotEmpty>
+			<isEqual property="querytype" compareValue="0"> <!-- 公司名模糊查询 -->
+			     <isNotEmpty prepend="and" property="companyname">
+				      companyname like '%$companyname$%'
+	         	</isNotEmpty>
+	         	</isEqual>
+	         	<isEqual  property="querytype" compareValue="1"> <!-- 公司名精确查询 -->
+			     <isNotEmpty prepend="and" property="companyname">
+				      companyname = #companyname#
+	         	</isNotEmpty>
+	         	</isEqual>
+			<isNotEmpty prepend="and" property="linkman"><!-- 联系人查询 -->
+				linkman=#linkman#	         	
+	        </isNotEmpty>
+	        <isNotEmpty property="intention">
+			<isNotEqual prepend="and" property="intention" compareValue="0"><!-- 意向查询 -->
+				intention=#intention#	         	
+	         	</isNotEqual>
+	        </isNotEmpty>
+	        <isNotEmpty property="industry"><!-- 按行业查询 -->
+			    <isNotEqual prepend="and" property="industry" compareValue="0">
+				   industry=#industry#
+			    </isNotEqual>
+			</isNotEmpty>
+			<isNotEmpty property="town"> <!-- 按城镇查询 -->
+			   <isNotEqual prepend="and" property="town" compareValue="0">
+				  town=#town#
+			   </isNotEqual>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="phone"> <!-- 按电话查询 -->
+				  phone=#phone#
+			</isNotEmpty>
+			<isEqual prepend="and" property="premission" compareValue="0"> <!--销售权限账户 -->
+				salerid=#u_id#			
+			</isEqual>
+			<isEqual prepend="and" property="premission" compareValue="1"><!-- 经理权限账户 -->
+				 company=(select company from s_user where id=#u_id#)
+				 and  dept=(select dept from s_user where id=#u_id#)	
+				 and	 _group=(select _group from s_user where id=#u_id#)	
+				<isNotEmpty  property="salerid"> 
+		  			<isNotEqual prepend="and" property="salerid" compareValue="0">
+						 salerid=#salerid#	
+					</isNotEqual> 
+				</isNotEmpty>
+			</isEqual>
+			<isEqual prepend="and" property="premission" compareValue="2"><!-- 高经权限账户 -->
+				  company=(select company from s_user where id=#u_id#)
+				  and  dept=(select dept from s_user where id=#u_id#)
+			<isNotEmpty property="group">
+		  	   <isNotEqual prepend="and" property="group" compareValue="0">
+					 _group=#group#	
+				<isNotEmpty prepend="and" property="salerid"> 
+					<isNotEqual property="salerid" compareValue="0">
+					 	salerid=#salerid#
+					</isNotEqual>
+				</isNotEmpty>
+			  </isNotEqual>
+			</isNotEmpty>
+			</isEqual>
+			<isEqual prepend="and"  property="premission" compareValue="3">	<!-- 总监账号 -->
+			 	company=(select company from s_user where id=#u_id#)
+			 	<isNotEmpty property="dept">
+				   <isNotEqual prepend="and" property="dept" compareValue="0">
+						dept=#dept#
+					<isNotEmpty property="group">
+		  			<isNotEqual prepend="and" property="group" compareValue="0">
+						 _group=#group#	
+						 <isNotEmpty  property="salerid"> 
+						 <isNotEqual prepend="and" property="salerid" compareValue="0">
+					        salerid=#salerid#
+				        </isNotEqual>
+				      </isNotEmpty>
+					 </isNotEqual>
+					 </isNotEmpty>
+					</isNotEqual>
+				</isNotEmpty>
+			</isEqual>
+		    <isNotEmpty prepend="and" property="accomplished">
+				accomplished=#accomplished# 
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="getSalesRecords" parameterClass="java.util.HashMap"
+		resultClass="com.baidu.vo.SalesRecord2">
+		select * from salesrecord inner join s_user on
+		salesrecord.salerid=s_user.id
+		<dynamic prepend="where">
+			<isNotEmpty property="date1"><!-- 录入时间 -->
+					<isNotEmpty prepend="and" property="date2">
+						salesrecord.date between #date1#
+						and #date2#
+	         		</isNotEmpty>
+			</isNotEmpty>
+			<isEqual property="querytype" compareValue="0"> <!-- 公司名模糊查询 -->
+			     <isNotEmpty prepend="and" property="companyname">
+				      companyname like '%$companyname$%'
+	         	</isNotEmpty>
+	         	</isEqual>
+	         	<isEqual  property="querytype" compareValue="1"> <!-- 公司名精确查询 -->
+			     <isNotEmpty prepend="and" property="companyname">
+				      companyname = #companyname#
+	         	</isNotEmpty>
+	         	</isEqual>
+			<isNotEmpty prepend="and" property="linkman"><!-- 联系人查询 -->
+				linkman=#linkman#	         	
+	        </isNotEmpty>
+	        <isNotEmpty property="intention">
+			<isNotEqual prepend="and" property="intention" compareValue="0"><!-- 意向查询 -->
+				intention=#intention#	         	
+	        </isNotEqual>
+	        </isNotEmpty>
+	        <isNotEmpty property="industry"><!-- 按行业查询 -->
+			    <isNotEqual prepend="and" property="industry" compareValue="0">
+				   industry=#industry#
+			    </isNotEqual>
+			</isNotEmpty>
+			<isNotEmpty property="town"> <!-- 按城镇查询 -->
+			   <isNotEqual prepend="and" property="town" compareValue="0">
+				  town=#town#
+			   </isNotEqual>
+			 
+			</isNotEmpty>
+			  <isNotEmpty prepend="and" property="phone"> <!-- 按电话查询 -->
+				  phone=#phone#
+			</isNotEmpty>
+			<isEqual prepend="and" property="premission" compareValue="0"> <!--销售权限账户 -->
+				salerid=#u_id#			
+			</isEqual>
+			<isEqual prepend="and" property="premission" compareValue="1"><!-- 经理权限账户 -->
+				company=(select company from s_user where id=#u_id#)
+				and dept=(select dept from s_user where id=#u_id#)	
+				and  _group=(select _group from s_user where id=#u_id#)	
+				<isNotEmpty  property="salerid"> 
+		  			<isNotEqual prepend="and" property="salerid" compareValue="0">
+						 salerid=#salerid#	
+					</isNotEqual> 
+				</isNotEmpty>
+			</isEqual>
+			<isEqual prepend="and" property="premission" compareValue="2"><!-- 高经权限账户 -->
+				company=(select company from s_user where id=#u_id#)
+				and  dept=(select dept from s_user where id=#u_id#)
+				<isNotEmpty property="group">
+		  	       <isNotEqual prepend="and" property="group" compareValue="0">
+					 _group=#group#	
+				    <isNotEmpty prepend="and" property="salerid"> 
+					   <isNotEqual property="salerid" compareValue="0">
+					 	  salerid=#salerid#	
+					   </isNotEqual>
+				    </isNotEmpty>
+			    </isNotEqual>
+			</isNotEmpty>
+			
+			</isEqual>
+			<isEqual prepend="and" property="premission" compareValue="3">	<!-- 总监账号 -->
+					company=(select company from s_user where id=#u_id#)
+				<isNotEmpty property="dept">
+				<isNotEqual prepend="and" property="dept" compareValue="0">
+						dept=#dept#
+					<isNotEmpty property="group">
+		  			<isNotEqual prepend="and" property="group" compareValue="0">
+						 _group=#group#	
+						 <isNotEmpty  property="salerid">
+						 <isNotEqual prepend="and" property="salerid" compareValue="0">
+					        salerid=#salerid#
+				         </isNotEqual>
+				         </isNotEmpty>
+					 </isNotEqual>
+					 </isNotEmpty>
+					</isNotEqual>
+				</isNotEmpty>	
+			</isEqual>
+			 <isNotEmpty prepend="and" property="accomplished">
+				accomplished=#accomplished# 
+			</isNotEmpty>
+			<isEqual  property="sort_flag" compareValue="0"><!-- 按输入时间排序 -->
+			    order by date desc
+			</isEqual>
+			<isEqual  property="sort_flag" compareValue="1"><!-- 按下次跟进时间排序 -->
+			    order by nextnotedate desc
+			</isEqual>
+			<isNotEmpty property="pagebegin">
+				<isNotEmpty property="pagecount">
+					limit #pagebegin#,#pagecount#
+				</isNotEmpty>
+			</isNotEmpty>
+		</dynamic>
+	</select>
+
+	<!-- 更新下次跟进时间  -->
+	<update id="updateNextnotedate" parameterClass="java.util.HashMap">
+		update salesrecord set nextnotedate=#nextnotedate# where id=#s_id#
+	</update>
+	
+	<update id="chengdan" parameterClass="int">
+		update salesrecord set accomplished=1 where id=#s_id#
+	</update>
+	
+	<!-- 修改客户信息  -->
+	<update id="modifyInfo" parameterClass="SalesRecord">
+		update salesrecord 
+		 set
+		<dynamic>
+			<isNotNull property="companyname" >
+		 		companyname=#companyname# 
+		 	</isNotNull>
+		 	<isNotNull property="linkman" prepend=",">
+		 		linkman=#linkman# 
+		 	</isNotNull>
+		 	<isNotNull property="phone" prepend=",">
+		 		phone=#phone# 
+		 	</isNotNull>
+		 	<isNotNull property="address" prepend=",">
+		 		address=#address# 
+		 	</isNotNull>
+		 	<isNotNull property="town" prepend=",">
+		 		town=#town# 
+		 	</isNotNull>
+		 	<isNotNull property="intention" prepend=",">
+		 		intention=#intention# 
+		 	</isNotNull>
+		 	<isNotNull property="industry" prepend=",">
+		 		industry=#industry# 
+		 	</isNotNull>
+		 	<isNotNull property="fax" prepend=",">
+		 		fax=#fax# 
+		 	</isNotNull>
+		 	<isNotNull property="website" prepend=",">
+		 		website=#website# 
+		 	</isNotNull>
+		 	<isNotNull property="nextnotedate" prepend=",">
+		 		nextnotedate=#nextnotedate# 
+		 	</isNotNull>
+		 	<isNotNull property="comment" prepend=",">
+		 		comment=#comment# 
+		 	</isNotNull>
+		 		<isNotNull property="dataSource" prepend=",">
+		 		datasource=#dataSource# 
+		 	</isNotNull>
+		 </dynamic>
+			where id=#id#
+	</update>
+</sqlMap>
+ 

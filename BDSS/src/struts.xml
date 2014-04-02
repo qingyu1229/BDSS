@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" 
+"http://struts.apache.org/dtds/struts-2.1.dtd">
+<struts>
+	<constant name="struts.devMode" value="false"></constant>
+	<constant name="struts.i18n.encoding" value="GBK"></constant>
+	
+	<package name="ajax" extends="json-default">
+        <action name="LinkageAction" class="com.baidu.action.LinkageAction">
+            <result type="json"></result>
+        </action>
+        <action name="UserAction" class="com.baidu.action.UserAction">
+        	<result type="json"></result>
+        </action>
+          <action name="SalesRecordAction" class="com.baidu.action.SalesRecordAction" method="add">
+        	<result type="json"></result>
+        </action>
+         <action name="SalesRecordAction2" class="com.baidu.action.SalesRecordAction2" method="selectInfos">
+        	<result type="json">
+        		<param name="root">datamap</param>
+        	</result>
+        </action>
+        <action name="load_*" class="com.baidu.action.GetUserStructure" method="load{1}">
+        	<result type="json">
+        		<param name="root">{1}Map</param>
+        	</result>
+        </action>
+         <action name="change_dept" class="com.baidu.action.GetUserStructure" method="changedept">
+        	<result type="json">
+        		<param name="root">groupMap</param>
+        	</result>
+        </action>
+         <action name="change_group" class="com.baidu.action.GetUserStructure" method="changegroup">
+        	<result type="json">
+        		<param name="root">salerMap</param>
+        	</result>
+        </action>
+        <action name="getSalesRecordById" class="com.baidu.action.SalesRecordAction" method="getSalesRecorById">
+        	<result type="json">
+        		<param name="root">salesReocrdMap</param>
+        	</result>
+        </action>
+        <action name="addNote" class="com.baidu.action.Note" method="addNote">
+        	<result type="json">
+        		<param name="root">addNoteMap</param>
+        	</result>
+        </action>
+        <action name="modifyInfo" class="com.baidu.action.SalesRecordAction" method="modifyInfo">
+        	<result type="json">
+        		<param name="root">resultMap</param>
+        	</result>
+        </action>
+        <action name="chengdan" class="com.baidu.action.SalesRecordAction" method="chengdan">
+        	<result type="json">
+        		<param name="root">resultMap</param>
+        	</result>
+        </action>
+         <action name="getNotes" class="com.baidu.action.Note" method="getNotes">
+        	<result type="json">
+        		<param name="root">notesMap</param>
+        	</result>
+        </action>
+          <action name="selectNotes" class="com.baidu.action.SalesRecordAction2" method="getNotes">
+        	<result type="json">
+        		<param name="root">notesMap</param>
+        	</result>
+        </action>
+        <action name="getDetailNote" class="com.baidu.action.Note" method="getNote">
+        	<result type="json">
+        		<param name="root">noteMap</param>
+        	</result>
+        </action>
+        <action name="getACPInfos" class="com.baidu.action.SalesRecordAction2" method="getACPInfos">
+        	<result type="json">
+        		<param name="root">ACPMap</param>
+        	</result>
+        </action>
+        <action name="PWDSafe" class="com.baidu.action.Safe" method="addSafeQuestion">
+        	<result type="json">
+        		<param name="root">addMap</param>
+        	</result>
+        </action>
+        <action name="ModifyPWD" class="com.baidu.action.UserAction" method="modifyPWD">
+        	<result type="json">
+        		<param name="root">modifyPWDMap</param>
+        	</result>
+        </action>
+         <action name="ModifyPWD2" class="com.baidu.action.UserAction" method="modifyPWD2">
+        	<result type="json">
+        		<param name="root">modifyPWDMap</param>
+        	</result>
+        </action>
+            <action name="getUserInfo" class="com.baidu.action.UserAction" method="getUserInfo">
+        	<result type="json">
+        		<param name="root">userInfoMap</param>
+        	</result>
+        </action>
+       <action name="selectNoActivation" class="com.baidu.action.EMPAction" method="selectNoActivation">
+        	<result type="json">
+        		<param name="root">EMPInfoMap</param>
+        	</result>
+        </action>
+        <action name="getEMPInfos" class="com.baidu.action.EMPAction" method="getEMPInfos">
+        	<result type="json">
+        		<param name="root">EMPInfoMap</param>
+        	</result>
+        </action>
+        
+         <action name="activation" class="com.baidu.action.EMPAction" method="activation">
+        	<result type="json">
+        		<param name="root">ActivationMap</param>
+        	</result>
+        </action>
+          <action name="fire" class="com.baidu.action.Safe" method="fire">
+        	<result type="json">
+        		<param name="root">resultMap</param>
+        	</result>
+        </action>
+        
+           <action name="transfer" class="com.baidu.action.Transfer" method="transfer">
+        	<result type="json">
+        		<param name="root">resultMap</param>
+        	</result>
+        </action>
+         <action name="ValidateInfo" class="com.baidu.action.SafeValidate" method="SafeStep1">
+        	<result type="json">
+        		<param name="root">resultMap</param>
+        	</result>
+        </action>
+           <action name="checkanswer" class="com.baidu.action.Safe" method="checkAnswer">
+        	<result type="json">
+        		<param name="root">resultMap</param>
+        	</result>
+        </action>
+         <action name="getNeedNote" class="com.baidu.action.UserAction" method="getNeedNote">
+        	<result type="json">
+        		<param name="root">resultMap</param>
+        	</result>
+        </action>
+         <action name="getNoNoteInfos" class="com.baidu.action.SalesRecordAction2" method="getNoNoteInfos">
+        	<result type="json">
+        		<param name="root">datamap</param>
+        	</result>
+        </action>
+         <action name="statistics" class="com.baidu.action.Statistics" method="statistics">
+        	<result type="json">
+        		<param name="root">resultMap</param>
+        	</result>
+        </action>
+          <action name="AddRecord" class="com.baidu.action.SalesRecordAction3" method="addRecord">
+        	<result type="json">
+        		<param name="root">datamap</param>
+        	</result>
+        </action>
+    </package>
+	<package name="baidu" extends="struts-default">
+	  	<action name="UserAction2" class="com.baidu.action.UserAction" method="addUser">
+        	<result name="success">RegisterSuccess.jsp</result>
+        	<result name="error">Register.jsp</result>
+        </action>
+        <action name="login" class="com.baidu.action.UserAction" method="login">
+        	<result name="error">Login.jsp</result>
+        	<result name="NoAct">NoAct.jsp</result>
+        	<result name="success">Main.jsp</result>
+        </action>
+	</package>
+	
+	<package name="upload" extends="struts-default">
+		<action name="AddByExcel" class="com.baidu.action.AddByExcel" method="saveFile">
+            <!-- 动态设置savePath的属性值 -->
+            <param name="savePath">/ExcelFiles</param>
+            <result name="success">/files/AddByExcelSUC.jsp</result>
+            <result name="input">/files/upload.jsp</result>
+            <interceptor-ref name="fileUpload">
+                <!-- 文件过滤 -->
+                <param name="allowedTypes">application/excel,application/vnd.ms-excel</param>
+                <!-- 文件大小, 以字节为单位 -->
+                <param name="maximumSize">2097152</param>
+            </interceptor-ref>
+            <!-- 默认拦截器必须放在fileUpload之后，否则无效 -->
+            <interceptor-ref name="defaultStack" />
+        </action>
+	</package>
+</struts>    
+

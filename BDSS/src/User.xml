@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE sqlMap  
+PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"  
+"http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap> 
+	<typeAlias alias="User" type="com.baidu.vo.User" />  
+	<!-- 用户登录 -->
+	<select id="login" parameterClass="java.util.HashMap" resultClass="User">
+		select realname,username,id,permission,activation,company from s_user 
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="username">
+				username=#username#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="password">
+				password=#password#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<!-- 用户注册 -->
+	<insert id="register" parameterClass="User" >
+		insert into 
+		s_user(username,password,realname,activation,company,dept,_group,permission,onjob)
+		values(#username#,#password#,#realname#,#activation#,#company#,#dept#,#group#,#permission#,#onJob#)
+		<selectKey resultClass="int" keyProperty="id">
+        	<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+     	</selectKey>
+	</insert>
+
+	<!-- 修改密码 -->
+	<update id="modifyPwd" parameterClass="java.util.HashMap">
+		update s_user set password=#newpwd# where id=#u_id#
+	</update>
+	<select id="checkOldPWD" parameterClass="java.util.HashMap" resultClass="int">
+		select count(id) from s_user where id=#u_id# and password=#oldPassword#
+	</select>
+	
+	
+	<!-- 检查用户名是否重复 -->
+	<select id="checkusername" parameterClass="string" resultClass="int">
+		select count(id) from s_user where username=#username#
+	</select>
+	
+	<select id="getUserInfo" parameterClass="java.util.HashMap" resultClass="com.baidu.vo.User3">
+		select username,realname,company,permission,onjob,dept,_group as mygroup from s_user where id=#u_id#
+	</select>
+</sqlMap>
+ 
